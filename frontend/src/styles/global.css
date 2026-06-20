@@ -1,0 +1,192 @@
+/* =========================================================================
+   PYRE — global tokens and base styles
+   Single source of truth for OKLCH palette, typography, motion.
+   See PRODUCT.md for design rationale.
+   ========================================================================= */
+
+:root {
+  /* Color tokens — measured against oklch(0.10 0.005 270) background.
+     Ink oklch(0.96) vs bg oklch(0.10): contrast ~16.5:1, AAA.
+     Muted oklch(0.65) vs bg: contrast ~5.4:1, AA body. */
+  --bg:           oklch(0.10 0.005 270);
+  --surface:      oklch(0.14 0.005 270);
+  --surface-2:    oklch(0.18 0.005 270);
+  --ink:          oklch(0.96 0.005 270);
+  --muted:        oklch(0.65 0.008 270);
+  --line:         oklch(0.28 0.005 270);
+  --ember:        oklch(0.62 0.21 25);    /* BURN, sparse */
+  --ember-soft:   oklch(0.62 0.21 25 / 0.18);
+  --emerald:      oklch(0.74 0.16 162);  /* VERIFIED */
+  --emerald-soft: oklch(0.74 0.16 162 / 0.16);
+  --amber:        oklch(0.78 0.15 75);   /* DISPUTED */
+  --amber-soft:   oklch(0.78 0.15 75 / 0.16);
+
+  /* Typography */
+  --font-display: "Inter Tight", "Geist", system-ui, sans-serif;
+  --font-body:    "Inter", "Geist", system-ui, sans-serif;
+  --font-mono:    "JetBrains Mono", "Geist Mono", ui-monospace, monospace;
+
+  /* Layout */
+  --max-w: 1240px;
+  --measure: 72ch;
+
+  /* Motion */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 160ms;
+  --dur: 280ms;
+  --dur-slow: 520ms;
+
+  /* Radii — capped low to keep the lab-instrument feel */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 12px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  min-height: 100vh;
+}
+
+body {
+  background-image:
+    radial-gradient(ellipse 70% 50% at 50% 0%, oklch(0.18 0.04 25 / 0.18), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, oklch(0.14 0.02 270 / 0.5), transparent 70%);
+  background-attachment: fixed;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 0;
+  color: var(--ink);
+}
+
+h1 {
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+}
+
+h2 {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+}
+
+h3 {
+  font-size: 1.25rem;
+}
+
+p {
+  margin: 0 0 1rem;
+  max-width: var(--measure);
+}
+
+a {
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line);
+  transition: border-color var(--dur-fast) var(--ease);
+}
+
+a:hover {
+  border-color: var(--ink);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  outline: none;
+}
+
+::selection {
+  background: var(--ember-soft);
+  color: var(--ink);
+}
+
+/* Focus rings — visible without being noisy */
+:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+/* Utility containers */
+.container {
+  width: 100%;
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.container-narrow {
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.stack > * + * {
+  margin-top: var(--gap, 1rem);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--gap, 0.75rem);
+}
+
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1rem;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

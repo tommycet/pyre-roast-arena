@@ -1,0 +1,202 @@
+# Walkthrough plan v10 for: PYRE
+# Goal: real-time A-Z walkthrough, NO speed regions, NO edits.
+#       Single initial page load + one wallet connect.
+#       SPA navigation via Playwright native page.click() (real mouse click).
+#
+# Battle state (studionet):
+#   battle #1: live e2e — visible on /arena (open)
+#   battle #2: disputed — visible on /flame only
+#   battle #3: open — visible on /arena
+#   battle #4: open — visible on /arena
+#   battle #5: open — visible on /arena (created by prior walkthrough)
+#
+# Route plan:
+#   home → arena → battle #1 → arena → hall of flame → battle #2 →
+#   combatant (winner) → hall of flame → arena → create battle → home
+
+target_url: "http://localhost:5173/"
+viewport: [1440, 900]
+fps: 25
+
+output:
+  format: mp4
+  size: original
+  quality: high
+  trim: { start: 0, end: 0 }
+
+stages:
+  # ============================================================
+  # 1. INITIAL PAGE LOAD + CONNECT DEMO SIGNER (only connect)
+  # ============================================================
+  - id: home_initial_load
+    description: "Initial load of PYRE home page"
+    actions:
+      - goto: "/"
+      - wait: 3000
+    expected_visible: "ROASTS COME AND GO"
+
+  - id: connect_demo_signer
+    description: "Connect demo signer (the ONLY connect for the whole walkthrough)"
+    actions:
+      - click: "button:has-text('DEMO SIGNER')"
+      - wait: 2000
+    expected_visible: "DISCONNECT"
+
+  # ============================================================
+  # 2. HOME -> ARENA
+  # ============================================================
+  - id: enter_arena
+    description: "Click ENTER THE ARENA button"
+    actions:
+      - click: "button:has-text('ENTER THE ARENA')"
+      - wait: 3000
+    expected_visible: "OPEN DUELS"
+
+  - id: scroll_arena_down
+    description: "Scroll arena down to see all open duels"
+    actions:
+      - scroll: { y: 500, behavior: "smooth" }
+      - wait: 1500
+    expected_visible: "OPEN DUELS"
+
+  # ============================================================
+  # 3. ARENA -> BATTLE #1
+  # ============================================================
+  - id: nav_battle_1
+    description: "Click battle #1 card link"
+    actions:
+      - click: "a[href='/battle/1']"
+      - wait: 3000
+    expected_visible: "BATTLE"
+
+  - id: scroll_battle_1
+    description: "Scroll battle #1 detail page"
+    actions:
+      - scroll: { y: 400, behavior: "smooth" }
+      - wait: 1500
+      - scroll: { y: 400, behavior: "smooth" }
+      - wait: 1500
+    expected_visible: "BATTLE"
+
+  # ============================================================
+  # 4. ARENA -> HALL OF FLAME (skip disputed battle #2 from arena)
+  # ============================================================
+  - id: back_to_arena
+    description: "Click ARENA nav link"
+    actions:
+      - click: "nav a:has-text('ARENA')"
+      - wait: 3000
+    expected_visible: "OPEN DUELS"
+
+  - id: nav_hall_of_flame
+    description: "Click HALL OF FLAME nav link"
+    actions:
+      - click: "nav a:has-text('HALL OF FLAME')"
+      - wait: 3000
+    expected_visible: "HALL OF FLAME"
+
+  - id: scroll_hall_of_flame
+    description: "Scroll Hall of Flame to see battle #2 + combatants"
+    actions:
+      - scroll: { y: 400, behavior: "smooth" }
+      - wait: 1500
+    expected_visible: "HALL OF FLAME"
+
+  # ============================================================
+  # 5. HALL OF FLAME -> BATTLE #2 (the disputed battle)
+  # ============================================================
+  - id: nav_battle_2
+    description: "Click battle #2 card link (disputed battle)"
+    actions:
+      - click: "a[href='/battle/2']"
+      - wait: 3000
+    expected_visible: "BATTLE"
+
+  - id: scroll_battle_2
+    description: "Scroll battle #2 to verdict + dispute panel"
+    actions:
+      - scroll: { y: 400, behavior: "smooth" }
+      - wait: 1500
+      - scroll: { y: 400, behavior: "smooth" }
+      - wait: 1500
+    expected_visible: "BATTLE"
+
+  # ============================================================
+  # 6. BATTLE #2 -> COMBATANT PROFILE (winner)
+  # ============================================================
+  - id: back_to_flame
+    description: "Click HALL OF FLAME nav link"
+    actions:
+      - click: "nav a:has-text('HALL OF FLAME')"
+      - wait: 3000
+    expected_visible: "HALL OF FLAME"
+
+  - id: nav_winner_profile
+    description: "Click winner combatant profile link"
+    actions:
+      - click: "a[href*='/combatant/']"
+      - wait: 3000
+    expected_visible: "REP"
+
+  - id: scroll_winner_profile
+    description: "Scroll winner profile to see REP stats"
+    actions:
+      - scroll: { y: 400, behavior: "smooth" }
+      - wait: 1500
+    expected_visible: "REP"
+
+  # ============================================================
+  # 7. WINNER PROFILE -> ARENA -> CREATE BATTLE
+  # ============================================================
+  - id: nav_to_arena_for_create
+    description: "Click ARENA nav link from profile"
+    actions:
+      - click: "nav a:has-text('ARENA')"
+      - wait: 3000
+    expected_visible: "OPEN DUELS"
+
+  - id: scroll_to_create_form
+    description: "Scroll to the create form"
+    actions:
+      - scroll: { y: 300, behavior: "smooth" }
+      - wait: 1500
+    expected_visible: "OPEN A NEW DUEL"
+
+  - id: type_create_topic
+    description: "Type a new roast topic"
+    actions:
+      - fill: { selector: "textarea", value: "your changelog is just a list of apologies in disguise" }
+      - wait: 1500
+    expected_visible: "OPEN A NEW DUEL"
+
+  - id: submit_create
+    description: "Click CREATE BATTLE button (triggers real-time consensus wait)"
+    actions:
+      - click: "button:has-text('CREATE BATTLE')"
+      - wait: 3000
+    expected_visible: "BROADCASTING"
+
+  - id: wait_create_consensus
+    description: "REAL-TIME wait for create_battle consensus on studionet (~30-90s)"
+    actions:
+      - wait: 60000
+    expected_visible: "ARENA"
+
+  - id: scroll_to_new_battle
+    description: "Scroll to see the new battle in the arena list"
+    actions:
+      - scroll: { y: 600, behavior: "smooth" }
+      - wait: 1500
+      - scroll: { y: 800, behavior: "smooth" }
+      - wait: 1500
+    expected_visible: "OPEN DUELS"
+
+  # ============================================================
+  # 8. ARENA -> HOME (closing shot, via PYRE logo)
+  # ============================================================
+  - id: end_home
+    description: "Navigate home via PYRE logo link"
+    actions:
+      - click: "header a[href='/']"
+      - wait: 3000
+    expected_visible: "ROASTS COME AND GO"

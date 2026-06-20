@@ -1,0 +1,19 @@
+[project]
+name = "pyre"
+version = "0.1.0"
+description = "Roast battle arena on GenLayer"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=8.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/direct"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+pythonpath = ["contracts", "tests"]
+
+[tool.pyright]
+include = ["contracts", "tests"]
+exclude = ["**/__pycache__"]
