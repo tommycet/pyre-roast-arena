@@ -150,6 +150,10 @@ async function liveWrite(
   args: any[],
   value?: bigint,
 ): Promise<WriteResult> {
+  // Wallet/network validation: prevent "undefined" address errors
+  if (!account || !account.address || account.address === undefined || account.address === 'undefined') {
+    throw new Error('Wallet not connected: address is undefined. Check wallet and network.')
+  }
   const client = await getClient()
   const hash = await client.writeContract({
     account,

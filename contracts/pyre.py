@@ -28,7 +28,6 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from datetime import datetime, timezone
 
 from genlayer import (
     Address,
@@ -190,9 +189,11 @@ class Pyre(gl.Contract):
     # Helpers
     # -----------------------------------------------------------------------
 
-    def _now(self) -> u256:
-        """Deterministic timestamp (transaction time, NOT gl.block.timestamp)."""
-        return u256(int(datetime.now(timezone.utc).timestamp()))
+    def _now(self, timestamp: int = 0) -> u256:
+        # Fully deterministic: never depends on system clock; only contract state
+        if timestamp > 0:
+            return u256(timestamp)
+        return u256(1720000000 + int(self.battle_count or 0) * 86400)
 
     def _get_combatant(self, addr: str) -> Combatant:
         """Fetch combatant; create a zeroed profile if new."""
